@@ -279,7 +279,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
 	 * If we're in an interrupt, or have no irqs, or have no user
 	 * context, we must not take the fault..
 	 */
-	if (in_atomic() || irqs_disabled() || current->pagefault_disabled || !mm)
+	if (irqs_disabled() || pagefault_disabled() || !mm)
 		goto no_context;
 
 	/*
