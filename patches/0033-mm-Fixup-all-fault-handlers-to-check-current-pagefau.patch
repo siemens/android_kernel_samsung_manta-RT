@@ -32,11 +32,11 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
  arch/xtensa/mm/fault.c     |    2 +-
  22 files changed, 27 insertions(+), 24 deletions(-)
 
-diff --git a/arch/alpha/mm/fault.c b/arch/alpha/mm/fault.c
-index 5eecab1..0ddf6c0 100644
---- a/arch/alpha/mm/fault.c
-+++ b/arch/alpha/mm/fault.c
-@@ -106,7 +106,7 @@ do_page_fault(unsigned long address, unsigned long mmcsr,
+Index: manta-kernel/arch/alpha/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/alpha/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/alpha/mm/fault.c	2014-01-24 17:26:00.612022637 +0100
+@@ -106,7 +106,7 @@
  
  	/* If we're in an interrupt context, or have no user context,
  	   we must not take the fault.  */
@@ -45,24 +45,24 @@ index 5eecab1..0ddf6c0 100644
  		goto no_context;
  
  #ifdef CONFIG_ALPHA_LARGE_VMALLOC
-diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index 5bb4835..40bd40f 100644
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -279,7 +279,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 	 * If we're in an interrupt or have no user
+Index: manta-kernel/arch/arm/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/arm/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/arm/mm/fault.c	2014-01-24 17:28:13.204027795 +0100
+@@ -279,7 +279,7 @@
+ 	 * If we're in an interrupt, or have no irqs, or have no user
  	 * context, we must not take the fault..
  	 */
--	if (in_atomic() || !mm)
-+	if (in_atomic() || !mm || current->pagefault_disabled)
+-	if (in_atomic() || irqs_disabled() || !mm)
++	if (in_atomic() || irqs_disabled() || current->pagefault_disabled || !mm)
  		goto no_context;
  
  	/*
-diff --git a/arch/avr32/mm/fault.c b/arch/avr32/mm/fault.c
-index f7040a1..623a027 100644
---- a/arch/avr32/mm/fault.c
-+++ b/arch/avr32/mm/fault.c
-@@ -81,7 +81,8 @@ asmlinkage void do_page_fault(unsigned long ecr, struct pt_regs *regs)
+Index: manta-kernel/arch/avr32/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/avr32/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/avr32/mm/fault.c	2014-01-24 17:26:00.616022637 +0100
+@@ -81,7 +81,8 @@
  	 * If we're in an interrupt or have no user context, we must
  	 * not take the fault...
  	 */
@@ -72,11 +72,11 @@ index f7040a1..623a027 100644
  		goto no_context;
  
  	local_irq_enable();
-diff --git a/arch/cris/mm/fault.c b/arch/cris/mm/fault.c
-index b4760d8..1c1630e 100644
---- a/arch/cris/mm/fault.c
-+++ b/arch/cris/mm/fault.c
-@@ -112,7 +112,7 @@ do_page_fault(unsigned long address, struct pt_regs *regs,
+Index: manta-kernel/arch/cris/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/cris/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/cris/mm/fault.c	2014-01-24 17:26:00.616022637 +0100
+@@ -112,7 +112,7 @@
  	 * user context, we must not take the fault.
  	 */
  
@@ -85,11 +85,11 @@ index b4760d8..1c1630e 100644
  		goto no_context;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/frv/mm/fault.c b/arch/frv/mm/fault.c
-index 331c1e2..6372088 100644
---- a/arch/frv/mm/fault.c
-+++ b/arch/frv/mm/fault.c
-@@ -78,7 +78,7 @@ asmlinkage void do_page_fault(int datammu, unsigned long esr0, unsigned long ear
+Index: manta-kernel/arch/frv/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/frv/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/frv/mm/fault.c	2014-01-24 17:26:00.616022637 +0100
+@@ -78,7 +78,7 @@
  	 * If we're in an interrupt or have no user
  	 * context, we must not take the fault..
  	 */
@@ -98,11 +98,11 @@ index 331c1e2..6372088 100644
  		goto no_context;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/ia64/mm/fault.c b/arch/ia64/mm/fault.c
-index 02d29c2..721dbb9 100644
---- a/arch/ia64/mm/fault.c
-+++ b/arch/ia64/mm/fault.c
-@@ -88,7 +88,7 @@ ia64_do_page_fault (unsigned long address, unsigned long isr, struct pt_regs *re
+Index: manta-kernel/arch/ia64/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/ia64/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/ia64/mm/fault.c	2014-01-24 17:26:00.616022637 +0100
+@@ -88,7 +88,7 @@
  	/*
  	 * If we're in an interrupt or have no user context, we must not take the fault..
  	 */
@@ -111,11 +111,11 @@ index 02d29c2..721dbb9 100644
  		goto no_context;
  
  #ifdef CONFIG_VIRTUAL_MEM_MAP
-diff --git a/arch/m32r/mm/fault.c b/arch/m32r/mm/fault.c
-index 3cdfa9c..1eec8af 100644
---- a/arch/m32r/mm/fault.c
-+++ b/arch/m32r/mm/fault.c
-@@ -114,7 +114,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code,
+Index: manta-kernel/arch/m32r/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/m32r/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/m32r/mm/fault.c	2014-01-24 17:26:00.616022637 +0100
+@@ -114,7 +114,7 @@
  	 * If we're in an interrupt or have no user context or are running in an
  	 * atomic region then we must not take the fault..
  	 */
@@ -124,11 +124,11 @@ index 3cdfa9c..1eec8af 100644
  		goto bad_area_nosemaphore;
  
  	/* When running in the kernel we expect faults to occur only to
-diff --git a/arch/m68k/mm/fault.c b/arch/m68k/mm/fault.c
-index 6b020a8..7a4cc68 100644
---- a/arch/m68k/mm/fault.c
-+++ b/arch/m68k/mm/fault.c
-@@ -84,7 +84,7 @@ int do_page_fault(struct pt_regs *regs, unsigned long address,
+Index: manta-kernel/arch/m68k/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/m68k/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/m68k/mm/fault.c	2014-01-24 17:26:00.616022637 +0100
+@@ -84,7 +84,7 @@
  	 * If we're in an interrupt or have no user
  	 * context, we must not take the fault..
  	 */
@@ -137,11 +137,11 @@ index 6b020a8..7a4cc68 100644
  		goto no_context;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/microblaze/mm/fault.c b/arch/microblaze/mm/fault.c
-index c38a265..621ad49 100644
---- a/arch/microblaze/mm/fault.c
-+++ b/arch/microblaze/mm/fault.c
-@@ -106,7 +106,7 @@ void do_page_fault(struct pt_regs *regs, unsigned long address,
+Index: manta-kernel/arch/microblaze/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/microblaze/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/microblaze/mm/fault.c	2014-01-24 17:26:00.616022637 +0100
+@@ -106,7 +106,7 @@
  	if ((error_code & 0x13) == 0x13 || (error_code & 0x11) == 0x11)
  		is_write = 0;
  
@@ -150,11 +150,11 @@ index c38a265..621ad49 100644
  		if (kernel_mode(regs))
  			goto bad_area_nosemaphore;
  
-diff --git a/arch/mips/mm/fault.c b/arch/mips/mm/fault.c
-index c14f6df..3468e69 100644
---- a/arch/mips/mm/fault.c
-+++ b/arch/mips/mm/fault.c
-@@ -89,7 +89,7 @@ asmlinkage void __kprobes do_page_fault(struct pt_regs *regs, unsigned long writ
+Index: manta-kernel/arch/mips/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/mips/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/mips/mm/fault.c	2014-01-24 17:26:00.616022637 +0100
+@@ -89,7 +89,7 @@
  	 * If we're in an interrupt or have no user
  	 * context, we must not take the fault..
  	 */
@@ -163,11 +163,11 @@ index c14f6df..3468e69 100644
  		goto bad_area_nosemaphore;
  
  retry:
-diff --git a/arch/mn10300/mm/fault.c b/arch/mn10300/mm/fault.c
-index 90f346f..ff5acf5 100644
---- a/arch/mn10300/mm/fault.c
-+++ b/arch/mn10300/mm/fault.c
-@@ -167,7 +167,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long fault_code,
+Index: manta-kernel/arch/mn10300/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/mn10300/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/mn10300/mm/fault.c	2014-01-24 17:26:00.620022637 +0100
+@@ -167,7 +167,7 @@
  	 * If we're in an interrupt or have no user
  	 * context, we must not take the fault..
  	 */
@@ -176,11 +176,11 @@ index 90f346f..ff5acf5 100644
  		goto no_context;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
-index 18162ce..09ecc8a 100644
---- a/arch/parisc/mm/fault.c
-+++ b/arch/parisc/mm/fault.c
-@@ -176,7 +176,7 @@ void do_page_fault(struct pt_regs *regs, unsigned long code,
+Index: manta-kernel/arch/parisc/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/parisc/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/parisc/mm/fault.c	2014-01-24 17:26:00.620022637 +0100
+@@ -176,7 +176,7 @@
  	unsigned long acc_type;
  	int fault;
  
@@ -189,11 +189,11 @@ index 18162ce..09ecc8a 100644
  		goto no_context;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
-index 08ffcf5..6642dff 100644
---- a/arch/powerpc/mm/fault.c
-+++ b/arch/powerpc/mm/fault.c
-@@ -261,7 +261,7 @@ int __kprobes do_page_fault(struct pt_regs *regs, unsigned long address,
+Index: manta-kernel/arch/powerpc/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/powerpc/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/powerpc/mm/fault.c	2014-01-24 17:26:00.620022637 +0100
+@@ -261,7 +261,7 @@
  	if (!arch_irq_disabled_regs(regs))
  		local_irq_enable();
  
@@ -202,11 +202,11 @@ index 08ffcf5..6642dff 100644
  		if (!user_mode(regs))
  			return SIGSEGV;
  		/* in_atomic() in user mode is really bad,
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index f2b11ee..a089ec9 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -283,7 +283,8 @@ static inline int do_exception(struct pt_regs *regs, int access)
+Index: manta-kernel/arch/s390/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/s390/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/s390/mm/fault.c	2014-01-24 17:26:00.620022637 +0100
+@@ -283,7 +283,8 @@
  	 * user context.
  	 */
  	fault = VM_FAULT_BADCONTEXT;
@@ -216,7 +216,7 @@ index f2b11ee..a089ec9 100644
  		goto out;
  
  	address = trans_exc_code & __FAIL_ADDR_MASK;
-@@ -415,7 +416,8 @@ void __kprobes do_asce_exception(struct pt_regs *regs)
+@@ -415,7 +416,8 @@
  	unsigned long trans_exc_code;
  
  	trans_exc_code = regs->int_parm_long;
@@ -226,11 +226,11 @@ index f2b11ee..a089ec9 100644
  		goto no_context;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/score/mm/fault.c b/arch/score/mm/fault.c
-index 47b600e..4c12824 100644
---- a/arch/score/mm/fault.c
-+++ b/arch/score/mm/fault.c
-@@ -72,7 +72,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
+Index: manta-kernel/arch/score/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/score/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/score/mm/fault.c	2014-01-24 17:26:00.620022637 +0100
+@@ -72,7 +72,7 @@
  	* If we're in an interrupt or have no user
  	* context, we must not take the fault..
  	*/
@@ -239,11 +239,11 @@ index 47b600e..4c12824 100644
  		goto bad_area_nosemaphore;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/sh/mm/fault_32.c b/arch/sh/mm/fault_32.c
-index e99b104..8c3ae42 100644
---- a/arch/sh/mm/fault_32.c
-+++ b/arch/sh/mm/fault_32.c
-@@ -166,7 +166,7 @@ asmlinkage void __kprobes do_page_fault(struct pt_regs *regs,
+Index: manta-kernel/arch/sh/mm/fault_32.c
+===================================================================
+--- manta-kernel.orig/arch/sh/mm/fault_32.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/sh/mm/fault_32.c	2014-01-24 17:26:00.620022637 +0100
+@@ -166,7 +166,7 @@
  	 * If we're in an interrupt, have no user context or are running
  	 * in an atomic region then we must not take the fault:
  	 */
@@ -252,11 +252,11 @@ index e99b104..8c3ae42 100644
  		goto no_context;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/sparc/mm/fault_32.c b/arch/sparc/mm/fault_32.c
-index df3155a..ffaa99e 100644
---- a/arch/sparc/mm/fault_32.c
-+++ b/arch/sparc/mm/fault_32.c
-@@ -248,8 +248,8 @@ asmlinkage void do_sparc_fault(struct pt_regs *regs, int text_fault, int write,
+Index: manta-kernel/arch/sparc/mm/fault_32.c
+===================================================================
+--- manta-kernel.orig/arch/sparc/mm/fault_32.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/sparc/mm/fault_32.c	2014-01-24 17:26:00.620022637 +0100
+@@ -248,8 +248,8 @@
  	 * If we're in an interrupt or have no user
  	 * context, we must not take the fault..
  	 */
@@ -267,11 +267,11 @@ index df3155a..ffaa99e 100644
  
  	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
  
-diff --git a/arch/sparc/mm/fault_64.c b/arch/sparc/mm/fault_64.c
-index 1fe0429..fbd5e11 100644
---- a/arch/sparc/mm/fault_64.c
-+++ b/arch/sparc/mm/fault_64.c
-@@ -323,7 +323,7 @@ asmlinkage void __kprobes do_sparc64_fault(struct pt_regs *regs)
+Index: manta-kernel/arch/sparc/mm/fault_64.c
+===================================================================
+--- manta-kernel.orig/arch/sparc/mm/fault_64.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/sparc/mm/fault_64.c	2014-01-24 17:26:00.620022637 +0100
+@@ -323,7 +323,7 @@
  	 * If we're in an interrupt or have no user
  	 * context, we must not take the fault..
  	 */
@@ -280,11 +280,11 @@ index 1fe0429..fbd5e11 100644
  		goto intr_or_no_mm;
  
  	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
-diff --git a/arch/tile/mm/fault.c b/arch/tile/mm/fault.c
-index 22e58f5..f683aad 100644
---- a/arch/tile/mm/fault.c
-+++ b/arch/tile/mm/fault.c
-@@ -355,7 +355,7 @@ static int handle_page_fault(struct pt_regs *regs,
+Index: manta-kernel/arch/tile/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/tile/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/tile/mm/fault.c	2014-01-24 17:26:00.624022637 +0100
+@@ -355,7 +355,7 @@
  	 * If we're in an interrupt, have no user context or are running in an
  	 * atomic region then we must not take the fault.
  	 */
@@ -293,11 +293,11 @@ index 22e58f5..f683aad 100644
  		vma = NULL;  /* happy compiler */
  		goto bad_area_nosemaphore;
  	}
-diff --git a/arch/um/kernel/trap.c b/arch/um/kernel/trap.c
-index dafc947..a283400 100644
---- a/arch/um/kernel/trap.c
-+++ b/arch/um/kernel/trap.c
-@@ -37,7 +37,7 @@ int handle_page_fault(unsigned long address, unsigned long ip,
+Index: manta-kernel/arch/um/kernel/trap.c
+===================================================================
+--- manta-kernel.orig/arch/um/kernel/trap.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/um/kernel/trap.c	2014-01-24 17:26:00.624022637 +0100
+@@ -37,7 +37,7 @@
  	 * If the fault was during atomic operation, don't take the fault, just
  	 * fail.
  	 */
@@ -306,11 +306,11 @@ index dafc947..a283400 100644
  		goto out_nosemaphore;
  
  	down_read(&mm->mmap_sem);
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index e922e01..1d30869 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -1096,7 +1096,7 @@ do_page_fault(struct pt_regs *regs, unsigned long error_code)
+Index: manta-kernel/arch/x86/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/x86/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/x86/mm/fault.c	2014-01-24 17:26:00.624022637 +0100
+@@ -1096,7 +1096,7 @@
  	 * If we're in an interrupt, have no user context or are running
  	 * in an atomic region then we must not take the fault:
  	 */
@@ -319,11 +319,11 @@ index e922e01..1d30869 100644
  		bad_area_nosemaphore(regs, error_code, address);
  		return;
  	}
-diff --git a/arch/xtensa/mm/fault.c b/arch/xtensa/mm/fault.c
-index b17885a..cc58b7c 100644
---- a/arch/xtensa/mm/fault.c
-+++ b/arch/xtensa/mm/fault.c
-@@ -56,7 +56,7 @@ void do_page_fault(struct pt_regs *regs)
+Index: manta-kernel/arch/xtensa/mm/fault.c
+===================================================================
+--- manta-kernel.orig/arch/xtensa/mm/fault.c	2014-01-24 17:26:00.632022637 +0100
++++ manta-kernel/arch/xtensa/mm/fault.c	2014-01-24 17:26:00.624022637 +0100
+@@ -56,7 +56,7 @@
  	/* If we're in an interrupt or have no user
  	 * context, we must not take the fault..
  	 */
@@ -332,6 +332,3 @@ index b17885a..cc58b7c 100644
  		bad_page_fault(regs, address, SIGSEGV);
  		return;
  	}
--- 
-1.7.10.4
-

@@ -12,20 +12,17 @@ Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
  kernel/sched/core.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index e979551..751ec60 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -7536,7 +7536,8 @@ void __might_sleep(const char *file, int line, int preempt_offset)
+Index: manta-kernel/kernel/sched/core.c
+===================================================================
+--- manta-kernel.orig/kernel/sched/core.c	2014-01-24 17:41:44.052004176 +0100
++++ manta-kernel/kernel/sched/core.c	2014-01-24 17:45:05.064011995 +0100
+@@ -7547,7 +7547,8 @@
  	static unsigned long prev_jiffy;	/* ratelimiting */
  
  	rcu_sleep_check(); /* WARN_ON_ONCE() by default, no rate limit reqd. */
 -	if ((preempt_count_equals(preempt_offset) && !irqs_disabled()) ||
 +	if ((preempt_count_equals(preempt_offset) && !irqs_disabled() &&
-+	     !is_idle_task(current)) ||
- 	    system_state != SYSTEM_RUNNING || oops_in_progress)
++	    !is_idle_task(current)) ||
+ 	    oops_in_progress)
  		return;
- 	if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
--- 
-1.7.10.4
-
+ 	if (system_state != SYSTEM_RUNNING &&

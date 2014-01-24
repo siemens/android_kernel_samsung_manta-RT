@@ -18,11 +18,10 @@ Signed-off-by: Carsten Emde <C.Emde@osadl.org>
  create mode 100644 Documentation/hwlat_detector.txt
  create mode 100644 drivers/misc/hwlat_detector.c
 
-diff --git a/Documentation/hwlat_detector.txt b/Documentation/hwlat_detector.txt
-new file mode 100644
-index 0000000..cb61516
---- /dev/null
-+++ b/Documentation/hwlat_detector.txt
+Index: manta-kernel/Documentation/hwlat_detector.txt
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ manta-kernel/Documentation/hwlat_detector.txt	2014-01-24 17:51:06.012026036 +0100
 @@ -0,0 +1,64 @@
 +Introduction:
 +-------------
@@ -88,11 +87,11 @@ index 0000000..cb61516
 +observe any latencies that exceed the threshold (initially 100 usecs),
 +then we write to a global sample ring buffer of 8K samples, which is
 +consumed by reading from the "sample" (pipe) debugfs file interface.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c744d9c..a6aed98 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3081,6 +3081,15 @@ L:	linuxppc-dev@lists.ozlabs.org
+Index: manta-kernel/MAINTAINERS
+===================================================================
+--- manta-kernel.orig/MAINTAINERS	2014-01-24 17:51:06.024026037 +0100
++++ manta-kernel/MAINTAINERS	2014-01-24 17:51:06.016026037 +0100
+@@ -3081,6 +3081,15 @@
  S:	Odd Fixes
  F:	drivers/tty/hvc/
  
@@ -108,11 +107,11 @@ index c744d9c..a6aed98 100644
  HARDWARE MONITORING
  M:	Jean Delvare <khali@linux-fr.org>
  M:	Guenter Roeck <guenter.roeck@ericsson.com>
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 504daa3..eead6ce 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -130,6 +130,35 @@ config IBM_ASM
+Index: manta-kernel/drivers/misc/Kconfig
+===================================================================
+--- manta-kernel.orig/drivers/misc/Kconfig	2014-01-24 17:51:06.024026037 +0100
++++ manta-kernel/drivers/misc/Kconfig	2014-01-24 17:51:06.016026037 +0100
+@@ -130,6 +130,35 @@
  	  for information on the specific driver level and support statement
  	  for your IBM server.
  
@@ -148,20 +147,10 @@ index 504daa3..eead6ce 100644
  config PHANTOM
  	tristate "Sensable PHANToM (PCI)"
  	depends on PCI
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 3e1d8010..c7c058a 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -49,3 +49,4 @@ obj-y				+= carma/
- obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
- obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
- obj-$(CONFIG_MAX8997_MUIC)	+= max8997-muic.o
-+obj-$(CONFIG_HWLAT_DETECTOR)	+= hwlat_detector.o
-diff --git a/drivers/misc/hwlat_detector.c b/drivers/misc/hwlat_detector.c
-new file mode 100644
-index 0000000..b7b7c90
---- /dev/null
-+++ b/drivers/misc/hwlat_detector.c
+Index: manta-kernel/drivers/misc/hwlat_detector.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ manta-kernel/drivers/misc/hwlat_detector.c	2014-01-24 17:51:06.016026037 +0100
 @@ -0,0 +1,1212 @@
 +/*
 + * hwlat_detector.c - A simple Hardware Latency detector.
@@ -1375,6 +1364,12 @@ index 0000000..b7b7c90
 +
 +module_init(detector_init);
 +module_exit(detector_exit);
--- 
-1.7.10.4
-
+Index: manta-kernel/drivers/misc/Makefile
+===================================================================
+--- manta-kernel.orig/drivers/misc/Makefile	2014-01-24 17:50:59.068025766 +0100
++++ manta-kernel/drivers/misc/Makefile	2014-01-24 17:51:31.240027018 +0100
+@@ -56,3 +56,4 @@
+ obj-$(CONFIG_SENSORS_AK8975)	+= akm8975.o
+ obj-$(CONFIG_STMPE811_ADC)	+= stmpe811-adc.o
+ obj-$(CONFIG_AUDIENCE_ES305)	+= es305.o
++obj-$(CONFIG_HWLAT_DETECTOR)   += hwlat_detector.o
