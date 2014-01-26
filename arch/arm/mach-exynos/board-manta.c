@@ -422,6 +422,7 @@ extern int kbase_carveout_mem_reserve(phys_addr_t size);
 static void __init exynos_reserve_mem(void)
 {
 	static struct cma_region regions[] = {
+#ifdef CONFIG_ION_EXYNOS
 		{
 			.name = "ion",
 #ifdef CONFIG_ION_EXYNOS_CONTIGHEAP_SIZE
@@ -431,6 +432,7 @@ static void __init exynos_reserve_mem(void)
 				.alignment = SZ_1M
 			}
 		},
+#endif
 #ifdef CONFIG_EXYNOS_CONTENT_PATH_PROTECTION
 #ifdef CONFIG_ION_EXYNOS_DRM_MFC_SH
 		{
@@ -531,8 +533,12 @@ static void __init exynos_reserve_mem(void)
 	}
 
 	exynos_cma_region_reserve(regions, regions_secure, 0, map);
+#ifdef CONFIG_MALI_T6XX
 	kbase_carveout_mem_reserve(384 * SZ_1M);
+#endif
+#ifdef CONFIG_ION_EXYNOS
 	ion_reserve(&exynos_ion_pdata);
+#endif
 }
 
 static void exynos_dwmci0_cfg_gpio(int width)
@@ -665,14 +671,18 @@ static struct platform_device *manta_devices[] __initdata = {
 	&s3c_device_adc,
 	&s3c_device_wdt,
 	&exynos5_device_dwmci0,
+#ifdef CONFIG_ION_EXYNOS
 	&exynos_device_ion,
+#endif
 	&exynos_device_tmu,
 	&s3c_device_usb_hsotg,
 	&s5p_device_ehci,
 	&exynos4_device_ohci,
 	&exynos_bus_mif_devfreq,
 	&exynos_bus_int_devfreq,
+#ifdef CONFIG_MALI_T6XX
 	&exynos5_device_g3d,
+#endif
 };
 
 static struct s3c_hsotg_plat manta_hsotg_pdata;

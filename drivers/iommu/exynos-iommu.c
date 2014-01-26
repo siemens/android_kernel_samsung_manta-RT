@@ -828,7 +828,9 @@ static unsigned long *alloc_lv2entry(unsigned long *sent, unsigned long iova,
 			return NULL;
 
 		*sent = mk_lv1ent_page(__pa(pent));
+#ifdef CONFIG_DEBUG_KMEMLEAK
 		kmemleak_ignore(pent);
+#endif
 		*pgcounter = NUM_LV2ENTRIES;
 		pgtable_flush(pent, pent + NUM_LV2ENTRIES);
 		pgtable_flush(sent, sent + 1);

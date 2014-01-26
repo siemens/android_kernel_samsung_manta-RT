@@ -79,9 +79,11 @@ static struct clk	*wdt_clock;
 static unsigned int	 wdt_count;
 static DEFINE_SPINLOCK(wdt_lock);
 
+#ifdef CONFIG_PM
 static struct sleep_save wdt_save[] = {
 	SAVE_ITEM(S3C2410_WTCON),
 };
+#endif
 
 /* watchdog control routines */
 
@@ -207,6 +209,7 @@ static int s3c2410wdt_set_heartbeat(struct watchdog_device *wdd, unsigned timeou
 	return 0;
 }
 
+#ifdef CONFIG_PM
 void s3c2410wdt_save(void)
 {
 	s3c_pm_do_save(wdt_save, ARRAY_SIZE(wdt_save));
@@ -216,6 +219,7 @@ void s3c2410wdt_restore(void)
 {
 	s3c_pm_do_restore_core(wdt_save, ARRAY_SIZE(wdt_save));
 }
+#endif
 
 #define OPTIONS (WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE)
 

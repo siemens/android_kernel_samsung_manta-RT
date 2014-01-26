@@ -2317,6 +2317,7 @@ static int s3c_fb_ioctl(struct fb_info *info, unsigned int cmd,
 	return ret;
 }
 
+#ifdef CONFIG_ION_EXYNOS
 static int s3c_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 {
 	struct s3c_fb_win *win = info->par;
@@ -2324,6 +2325,7 @@ static int s3c_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
 
 	return dma_buf_mmap(win->dma_buf_data.dma_buf, vma, 0);
 }
+#endif
 
 static struct fb_ops s3c_fb_ops = {
 	.owner		= THIS_MODULE,
@@ -2336,7 +2338,9 @@ static struct fb_ops s3c_fb_ops = {
 	.fb_imageblit	= cfb_imageblit,
 	.fb_pan_display	= s3c_fb_pan_display,
 	.fb_ioctl	= s3c_fb_ioctl,
+#ifdef CONFIG_ION_EXYNOS
 	.fb_mmap	= s3c_fb_mmap,
+#endif
 };
 
 /**
@@ -2538,7 +2542,9 @@ static int __devinit s3c_fb_probe_win(struct s3c_fb *sfb, unsigned int win_no,
 	win->windata = windata;
 	win->index = win_no;
 	win->palette_buffer = (u32 *)(win + 1);
+#ifdef CONFIG_ION_EXYNOS
 	memset(&win->dma_buf_data, 0, sizeof(win->dma_buf_data));
+#endif
 
 	ret = s3c_fb_alloc_memory(sfb, win);
 	if (ret) {
@@ -3770,7 +3776,9 @@ err_fb:
 		exynos5_bus_mif_put(sfb->fb_mif_handle);
 	if (sfb->fb_int_handle)
 		exynos5_bus_int_put(sfb->fb_int_handle);
+#ifdef CONFIG_ION_EXYNOS
 	iovmm_deactivate(&s5p_device_fimd1.dev);
+#endif
 
 err_iovmm:
 	device_remove_file(sfb->dev, &dev_attr_vsync);
@@ -3826,8 +3834,10 @@ static int __devexit s3c_fb_remove(struct platform_device *pdev)
 
 	unregister_framebuffer(sfb->windows[sfb->pdata->default_win]->fbinfo);
 
+#ifdef CONFIG_ION_EXYNOS
 	if (sfb->update_regs_thread)
 		kthread_stop(sfb->update_regs_thread);
+#endif
 
 	for (win = 0; win < S3C_FB_MAX_WIN; win++)
 		if (sfb->windows[win])
@@ -3878,7 +3888,9 @@ static int s3c_fb_disable(struct s3c_fb *sfb)
 	if (sfb->pdata->lcd_off)
 		sfb->pdata->lcd_off();
 
+#ifdef CONFIG_ION_EXYNOS
 	flush_kthread_worker(&sfb->update_regs_worker);
+#endif
 
 	vidcon0 = readl(sfb->regs + VIDCON0);
 

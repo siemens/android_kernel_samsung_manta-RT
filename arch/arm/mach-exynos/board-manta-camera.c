@@ -252,13 +252,17 @@ static void manta_gpio_pull_up(bool pull_up)
 
 static struct platform_device *camera_devices[] __initdata = {
 	&s3c64xx_device_spi1,
+#ifdef CONFIG_VIDEO_EXYNOS
 	&exynos5_device_fimc_is,
+#endif
 };
 
 static void __init manta_camera_sysmmu_init(void)
 {
+#ifdef CONFIG_VIDEO_EXYNOS
 	platform_set_sysmmu(&SYSMMU_PLATDEV(isp).dev,
 					&exynos5_device_fimc_is.dev);
+#endif
 
 }
 
@@ -280,7 +284,7 @@ void __init exynos5_manta_camera_init(void)
 	} else {
 		pr_err("%s: Error requesting gpio for SPI-CH1 CS\n", __func__);
 	}
-
+#ifdef CONFIG_VIDEO_EXYNOS
 	/* FIMC-IS-MC */
 	dev_set_name(&exynos5_device_fimc_is.dev, "s5p-mipi-csis.0");
 	clk_add_alias("gscl_wrap0", FIMC_IS_MODULE_NAME, "gscl_wrap0",
@@ -298,14 +302,15 @@ void __init exynos5_manta_camera_init(void)
 	clk_add_alias("gscl", FIMC_IS_MODULE_NAME, "gscl",
 			&exynos5_device_fimc_is.dev);
 	dev_set_name(&exynos5_device_fimc_is.dev, FIMC_IS_MODULE_NAME);
-
+#endif
 #if defined CONFIG_VIDEO_S5K6A3
 	exynos5_fimc_is_data.sensor_info[s5k6a3.sensor_position] = &s5k6a3;
 #endif
 #if defined CONFIG_VIDEO_S5K4E5
 	exynos5_fimc_is_data.sensor_info[s5k4e5.sensor_position] = &s5k4e5;
 #endif
-
+#ifdef CONFIG_VIDEO_EXYNOS
 	exynos5_fimc_is_set_platdata(&exynos5_fimc_is_data);
+#endif
 }
 

@@ -463,7 +463,9 @@ abort:
 				/* Poke cpu1 out of the boot rom */
 				__raw_writel(virt_to_phys(s3c_cpu_resume),
 					BOOT_VECTOR);
+#ifdef CONFIG_SMP
 				dsb_sev();
+#endif
 			}
 
 			/* Wait for cpu1 to finish booting */

@@ -1722,7 +1722,9 @@ static void __init exynos_reserve_mem(void)
 		"exynos5-fimc-is=fimc_is;";
 
 	exynos_cma_region_reserve(regions, regions_secure, 0, map);
+#ifdef CONFIG_ION_EXYNOS
 	ion_reserve(&exynos_ion_pdata);
+#endif
 }
 #else /* !CONFIG_CMA*/
 static inline void exynos_reserve_mem(void)

@@ -146,6 +146,7 @@ config EXYNOS4_DEV_FIMC_LITE
 	  Compile in platform device definitions for FIMC_LITE
 
 config EXYNOS4_DEV_FIMC_IS
+	depends on VIDEO_EXYNOS
 	bool
 	help
 	  Compile in platform device definition for FIMC-IS
@@ -514,7 +515,6 @@ config MACH_SMDK5250
 	select EXYNOS_SETUP_FIMD1
 	select EXYNOS_DEV_ROTATOR
 	select EXYNOS_DEV_TMU
-	select EXYNOS4_DEV_FIMC_IS
 	select EXYNOS4_DEV_USB_OHCI
 	select EXYNOS4_SETUP_I2C1
 	select EXYNOS4_SETUP_I2C2
@@ -567,7 +567,6 @@ config MACH_MANTA
 	select EXYNOS_SETUP_FIMD1
 	select EXYNOS_DEV_ROTATOR
 	select EXYNOS_DEV_TMU
-	select EXYNOS4_DEV_FIMC_IS
 	select EXYNOS4_DEV_USB_OHCI
 	select EXYNOS4_SETUP_I2C1
 	select EXYNOS4_SETUP_I2C2

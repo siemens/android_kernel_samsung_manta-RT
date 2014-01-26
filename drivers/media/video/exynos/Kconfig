@@ -6,6 +6,7 @@ config VIDEO_EXYNOS
 	depends on ARCH_EXYNOS5
 	default n
 	select VIDEO_FIXED_MINOR_RANGES
+	select EXYNOS4_DEV_FIMC_IS if (MACH_SMDK5250 || MACH_MANTA)
 	help
 	  This is a representative exynos multimedia device.
 
