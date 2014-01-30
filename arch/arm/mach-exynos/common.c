@@ -489,7 +489,7 @@ static void __init exynos5_init_clocks(int xtal)
 #define COMBINER_INT_STATUS	0xC
 #define COMBINER_IRQS		8
 
-static DEFINE_SPINLOCK(irq_controller_lock);
+static DEFINE_RAW_SPINLOCK(irq_controller_lock);
 
 struct combiner_chip_data {
 	unsigned int irq_offset;
@@ -497,7 +497,7 @@ struct combiner_chip_data {
 	void __iomem *base;
 	unsigned int parent_irq;
 	struct cpumask affinity[COMBINER_IRQS];
-	spinlock_t lock;
+	raw_spinlock_t lock;
 };
 
 static struct combiner_chip_data combiner_data[MAX_COMBINER_NR];
@@ -523,9 +523,9 @@ static void combiner_handle_cascade_irq(unsigned int irq, struct irq_desc *desc)
 
 	chained_irq_enter(chip, desc);
 
-	spin_lock(&irq_controller_lock);
+	raw_spin_lock(&irq_controller_lock);
 	status = __raw_readl(chip_data->base + COMBINER_INT_STATUS);
-	spin_unlock(&irq_controller_lock);
+	raw_spin_unlock(&irq_controller_lock);
 	status &= chip_data->irq_mask;
 
 	if (status == 0)
@@ -577,7 +577,7 @@ static int combiner_set_affinity(struct irq_data *d,
 		return -EINVAL;
 	}
 
-	spin_lock_irqsave(&combiner_data[combiner_nr].lock, flags);
+	raw_spin_lock_irqsave(&combiner_data[combiner_nr].lock, flags);
 
 	cpumask_setall(&target_affinity);
 	for (i = 0; i < COMBINER_IRQS; ++i) {
@@ -602,7 +602,7 @@ static int combiner_set_affinity(struct irq_data *d,
 		cpumask_copy(&combiner_data[combiner_nr].affinity[sub_irq],
 			     &target_affinity);
 out:
-	spin_unlock_irqrestore(&combiner_data[combiner_nr].lock, flags);
+	raw_spin_unlock_irqrestore(&combiner_data[combiner_nr].lock, flags);
 	return ret;
 }
 
@@ -619,7 +619,7 @@ static void __init combiner_init(unsigned int combiner_nr, void __iomem *base,
 	combiner_data[combiner_nr].irq_offset = irq_start;
 	combiner_data[combiner_nr].irq_mask = 0xff << ((combiner_nr % 4) << 3);
 	combiner_data[combiner_nr].parent_irq = IRQ_SPI(combiner_nr);
-	spin_lock_init(&combiner_data[combiner_nr].lock);
+	raw_spin_lock_init(&combiner_data[combiner_nr].lock);
 	for (i = 0; i < COMBINER_IRQS; ++i)
 		cpumask_setall(&combiner_data[combiner_nr].affinity[i]);
 
@@ -817,7 +817,7 @@ static void __init exynos_init_uarts(struct s3c2410_uartcfg *cfg, int no)
 
 void __iomem *exynos_eint_base;
 
-static DEFINE_SPINLOCK(eint_lock);
+static DEFINE_RAW_SPINLOCK(eint_lock);
 
 static unsigned int eint0_15_data[16];
 
@@ -910,22 +910,22 @@ static inline void exynos_irq_eint_mask(struct irq_data *data)
 {
 	u32 mask;
 
-	spin_lock(&eint_lock);
+	raw_spin_lock(&eint_lock);
 	mask = __raw_readl(EINT_MASK(exynos_eint_base, data->irq));
 	mask |= EINT_OFFSET_BIT(data->irq);
 	__raw_writel(mask, EINT_MASK(exynos_eint_base, data->irq));
-	spin_unlock(&eint_lock);
+	raw_spin_unlock(&eint_lock);
 }
 
 static void exynos_irq_eint_unmask(struct irq_data *data)
 {
 	u32 mask;
 
-	spin_lock(&eint_lock);
+	raw_spin_lock(&eint_lock);
 	mask = __raw_readl(EINT_MASK(exynos_eint_base, data->irq));
 	mask &= ~(EINT_OFFSET_BIT(data->irq));
 	__raw_writel(mask, EINT_MASK(exynos_eint_base, data->irq));
-	spin_unlock(&eint_lock);
+	raw_spin_unlock(&eint_lock);
 }
 
 static inline void exynos_irq_eint_ack(struct irq_data *data)
@@ -976,12 +976,12 @@ static int exynos_irq_eint_set_type(struct irq_data *data, unsigned int type)
 	shift = (offs & 0x7) * 4;
 	mask = 0x7 << shift;
 
-	spin_lock(&eint_lock);
+	raw_spin_lock(&eint_lock);
 	ctrl = __raw_readl(EINT_CON(exynos_eint_base, data->irq));
 	ctrl &= ~mask;
 	ctrl |= newvalue << shift;
 	__raw_writel(ctrl, EINT_CON(exynos_eint_base, data->irq));
-	spin_unlock(&eint_lock);
+	raw_spin_unlock(&eint_lock);
 
 	if (type & IRQ_TYPE_EDGE_BOTH)
 		__irq_set_handler_locked(data->irq, handle_edge_irq);

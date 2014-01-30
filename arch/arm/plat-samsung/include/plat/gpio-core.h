@@ -67,7 +67,7 @@ struct samsung_gpio_chip {
 	void __iomem		*base;
 	int			irq_base;
 	int			group;
-	spinlock_t		 lock;
+	raw_spinlock_t		 lock;
 #ifdef CONFIG_PM
 	u32			pm_save[7];
 #endif
@@ -120,5 +120,5 @@ extern struct samsung_gpio_pm samsung_gpio_pm_4bit;
 #endif /* CONFIG_PM */
 
 /* locking wrappers to deal with multiple access to the same gpio bank */
-#define samsung_gpio_lock(_oc, _fl) spin_lock_irqsave(&(_oc)->lock, _fl)
-#define samsung_gpio_unlock(_oc, _fl) spin_unlock_irqrestore(&(_oc)->lock, _fl)
+#define samsung_gpio_lock(_oc, _fl) raw_spin_lock_irqsave(&(_oc)->lock, _fl)
+#define samsung_gpio_unlock(_oc, _fl) raw_spin_unlock_irqrestore(&(_oc)->lock, _fl)

@@ -912,7 +912,7 @@ static void __init samsung_gpiolib_add(struct samsung_gpio_chip *chip)
 	BUG_ON(!gc->label);
 	BUG_ON(!gc->ngpio);
 
-	spin_lock_init(&chip->lock);
+	raw_spin_lock_init(&chip->lock);
 
 	if (!gc->direction_input)
 		gc->direction_input = samsung_gpiolib_2bit_input;
