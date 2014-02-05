@@ -291,7 +291,7 @@ struct inv_mpu_iio_s {
 	struct inv_reg_map_s reg;
 	const struct inv_hw_s *hw;
 	enum   inv_devices chip_type;
-	spinlock_t time_stamp_lock;
+	raw_spinlock_t time_stamp_lock;
 	struct i2c_client *client;
 	struct mpu_platform_data plat_data;
 	struct inv_mpu_slave *mpu_slave;

@@ -1893,7 +1893,7 @@ static int inv_mpu_probe(struct i2c_client *client,
 	}
 
 	INIT_KFIFO(st->timestamps);
-	spin_lock_init(&st->time_stamp_lock);
+	raw_spin_lock_init(&st->time_stamp_lock);
 	dev_info(&client->adapter->dev, "%s is ready to go!\n", st->hw->name);
 
 	return 0;

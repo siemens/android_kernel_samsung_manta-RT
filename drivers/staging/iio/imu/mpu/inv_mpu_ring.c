@@ -331,9 +331,9 @@ int set_inv_enable(struct iio_dev *indio_dev,
 void inv_clear_kfifo(struct inv_mpu_iio_s *st)
 {
 	unsigned long flags;
-	spin_lock_irqsave(&st->time_stamp_lock, flags);
+	raw_spin_lock_irqsave(&st->time_stamp_lock, flags);
 	kfifo_reset(&st->timestamps);
-	spin_unlock_irqrestore(&st->time_stamp_lock, flags);
+	raw_spin_unlock_irqrestore(&st->time_stamp_lock, flags);
 }
 
 /**
@@ -349,7 +349,7 @@ static irqreturn_t inv_irq_handler(int irq, void *dev_id)
 	st = (struct inv_mpu_iio_s *)dev_id;
 	timestamp = get_time_ns();
 	time_since_last_irq = timestamp - st->last_isr_time;
-	spin_lock(&st->time_stamp_lock);
+	raw_spin_lock(&st->time_stamp_lock);
 	catch_up = 0;
 	while ((time_since_last_irq > st->irq_dur_ns * 2) &&
 	       (catch_up < MAX_CATCH_UP) &&
@@ -363,7 +363,7 @@ static irqreturn_t inv_irq_handler(int irq, void *dev_id)
 	}
 	kfifo_in(&st->timestamps, &timestamp, 1);
 	st->last_isr_time = timestamp;
-	spin_unlock(&st->time_stamp_lock);
+	raw_spin_unlock(&st->time_stamp_lock);
 
 	return IRQ_WAKE_THREAD;
 }
