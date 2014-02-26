@@ -20,7 +20,7 @@
 /*
  * lockdep: we want to handle all irq_desc locks as a single lock-class:
  */
-static struct lock_class_key irq_desc_lock_class;
+static struct lock_class_key irq_desc_lock_class[NR_IRQS];
 
 #if defined(CONFIG_SMP)
 static int __init irq_affinity_setup(char *str)
@@ -165,7 +165,7 @@ static struct irq_desc *alloc_desc(int irq, int node, struct module *owner)
 		goto err_kstat;
 
 	raw_spin_lock_init(&desc->lock);
-	lockdep_set_class(&desc->lock, &irq_desc_lock_class);
+//	lockdep_set_class(&desc->lock, &irq_desc_lock_class);
 
 	desc_set_defaults(irq, desc, node, owner);
 
@@ -281,7 +281,7 @@ int __init early_irq_init(void)
 		desc[i].kstat_irqs = alloc_percpu(unsigned int);
 		alloc_masks(&desc[i], GFP_KERNEL, node);
 		raw_spin_lock_init(&desc[i].lock);
-		lockdep_set_class(&desc[i].lock, &irq_desc_lock_class);
+		lockdep_set_class(&desc[i].lock, &irq_desc_lock_class[i]);
 		desc_set_defaults(i, &desc[i], node, NULL);
 	}
 	return arch_early_irq_init();
