@@ -4740,6 +4740,7 @@ dhd_module_init(void)
 #endif /* defined(CONFIG_WIFI_CONTROL_FUNC) */
 		if (down_timeout(&dhd_chipup_sem,
 			msecs_to_jiffies(POWERUP_WAIT_MS)) == 0) {
+			msleep(POWERUP_WAIT_MS);
 			dhd_bus_unreg_sdio_notify();
 			chip_up = 1;
 			break;
