@@ -346,7 +346,7 @@ static int __init manta_connector_init(void)
 	 * after the battery driver is ready (this fixes booting with otg cable
 	 * attached)
 	 */
-	queue_delayed_work(system_nrt_wq, &motg->work, msecs_to_jiffies(4000));
+	queue_delayed_work(system_nrt_wq, &motg->work, msecs_to_jiffies(10000));
 
 	return ret;
 }
