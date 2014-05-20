@@ -23,6 +23,7 @@
 #include <linux/sched.h>
 #include <linux/scatterlist.h>
 #include <linux/vmalloc.h>
+#include <linux/slab.h>
 #include "ion_priv.h"
 
 void *ion_heap_map_kernel(struct ion_heap *heap,
@@ -97,40 +98,72 @@ int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
 	return 0;
 }
 
+#define ION_HEAP_ZERO_BATCH 50
 int ion_heap_buffer_zero(struct ion_buffer *buffer)
 {
 	struct sg_table *table = buffer->sg_table;
 	pgprot_t pgprot;
 	struct scatterlist *sg;
-	struct vm_struct *vm_struct;
-	int i, j, ret = 0;
+	struct vm_struct *vm_struct = NULL;
+	int i, j, ret = 0, batch_max = ION_HEAP_ZERO_BATCH;
+	struct page **pages = NULL;
 
 	if (buffer->flags & ION_FLAG_CACHED)
 		pgprot = PAGE_KERNEL;
 	else
 		pgprot = pgprot_writecombine(PAGE_KERNEL);
 
-	vm_struct = get_vm_area(PAGE_SIZE, VM_ALLOC);
-	if (!vm_struct)
+	pages = kmalloc(sizeof(struct page*) * batch_max, GFP_KERNEL);
+	if (!pages)
 		return -ENOMEM;
 
 	for_each_sg(table->sgl, sg, table->nents, i) {
 		struct page *page = sg_page(sg);
 		unsigned long len = sg_dma_len(sg);
 
-		for (j = 0; j < len / PAGE_SIZE; j++) {
-			struct page *sub_page = page + j;
-			struct page **pages = &sub_page;
-			ret = map_vm_area(vm_struct, pgprot, &pages);
+		printk("ion_heap_buffer_zero: sg_page %x, len: %i\n", page, len);
+
+		j = 0;
+		while (j < len / PAGE_SIZE) {
+			int k;
+			int batch_pages = min((unsigned long) batch_max, (len / PAGE_SIZE) - j);
+			struct page **lpages = pages;
+
+			/* Try to operate in batches, not in PAGE granularity as each
+		 	 * unmap_kernel_range may trigger expensive actions like TLB flushes. 
+			 * On some Cortex A15 this even blocks all cores via IPI (see
+			 * broadcast_tlb_a15_erratum) */
+			vm_struct = get_vm_area(PAGE_SIZE * batch_pages, VM_MAP);
+			if (!vm_struct) {
+				printk(KERN_WARNING "%s: get_vm_area failed for %i pages, falling back to single page mode (RT issues!)", __func__, batch_max);
+				batch_max = batch_pages = 1;
+				vm_struct = get_vm_area(PAGE_SIZE * batch_pages, VM_MAP);
+				if (!vm_struct) {
+					ret = -ENOMEM;
+					goto end;
+				}
+			}
+
+			for (k = 0; k < batch_pages; k++)
+				lpages[k] = page+(j+k); 
+
+			ret = map_vm_area(vm_struct, pgprot, &lpages);
 			if (ret)
 				goto end;
-			memset(vm_struct->addr, 0, PAGE_SIZE);
+			printk("ion_heap_buffer_zero: addr %x, batch: %i\n", vm_struct->addr, batch_pages);
+			memset(vm_struct->addr, 0, PAGE_SIZE * batch_pages);
 			unmap_kernel_range((unsigned long)vm_struct->addr,
-					   PAGE_SIZE);
+					   PAGE_SIZE * batch_pages);
+			free_vm_area(vm_struct);
+			vm_struct = NULL;
+			j += batch_pages;
 		}
 	}
 end:
-	free_vm_area(vm_struct);
+	if (vm_struct)
+		free_vm_area(vm_struct);
+	if (pages)
+		kfree(pages);
 	return ret;
 }
 
