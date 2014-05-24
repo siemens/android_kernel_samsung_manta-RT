@@ -40,6 +40,7 @@ struct manta_otg {
 	struct mutex		lock;
 	bool			usb_connected;
 	struct usb_bus		*ohci;
+	struct workqueue_struct *otg_wq;
 
 	/* HACK: s5p phy interface requires passing a pdev pointer */
 	struct platform_device	pdev;
@@ -289,7 +290,7 @@ void manta_otg_set_usb_state(bool connected)
 {
 	struct manta_otg *motg = &manta_otg;
 	motg->usb_connected = connected;
-	queue_delayed_work(system_nrt_wq, &motg->work,
+	queue_delayed_work(motg->otg_wq, &motg->work,
 			   connected ? msecs_to_jiffies(20) : 0);
 	if (!connected)
 		flush_delayed_work(&motg->work);
@@ -303,6 +304,8 @@ void exynos5_manta_connector_init(void)
 	INIT_DELAYED_WORK(&motg->work, manta_otg_work);
 	ATOMIC_INIT_NOTIFIER_HEAD(&motg->phy.notifier);
 	mutex_init(&motg->lock);
+
+	motg->otg_wq = alloc_workqueue("manta_otg_event", WQ_NON_REENTRANT | WQ_HIGHPRI, 1);
 
 	device_initialize(dev);
 	dev_set_name(dev, "%s", "manta_otg");
